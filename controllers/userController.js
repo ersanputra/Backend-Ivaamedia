@@ -1,4 +1,5 @@
 const UserService = require('../services/userService');
+const { createTokens } = require('../libs/jwt');
 const userService = new UserService();
 
 class UserController {
@@ -76,6 +77,39 @@ class UserController {
       });
     }
   }
+
+ 
+
+  async login(req, res) {
+        try {
+            const user = await userService.login(req.body.email, req.body.password);
+
+            // Membuat JWT token setelah pengguna berhasil login
+            const accessToken = createTokens(user);
+
+            const objekUser = {
+                full_name: user.full_name,
+                user_id: user.user_id,
+                email: user.email,
+                phone_number: user.phone_number,
+                profile_image: user.profile_image,
+                role: user.role,
+                accessToken: accessToken,
+      
+              };
+            
+            res.status(200).json({
+                status: 'success',
+                data: objekUser,
+                message: 'Login Berhasil!'
+            });
+        } catch (error) {
+            res.status(400).json({
+                status: 'error',
+                message: error.message
+            });
+        }
+    }
 }
 
 module.exports = UserController;

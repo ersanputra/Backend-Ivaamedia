@@ -1,4 +1,4 @@
-const { User } = require('../models');
+const { User, Business } = require('../models');
 const bcrypt = require('bcrypt');
 
 class UserService {
@@ -15,10 +15,18 @@ class UserService {
 
       const hashedPassword = await bcrypt.hash(userData.password, 10);
 
+      // Buat entri business
+      const business = await Business.create({
+        name: userData.full_name,
+        active: true,
+      });
+
+      // Buat entri user dengan business_id yang baru saja dibuat
       const user = await User.create({
         ...userData,
         role: 'USER',
         password: hashedPassword,
+        business_id: business.id, // Menghubungkan user dengan business
       });
 
       return user;
@@ -30,7 +38,6 @@ class UserService {
 
   async getAllUsers() {
     try {
-      //return await User.findAll({ where: { active: true } });
       return await User.findAll();
     } catch (error) {
       console.error('Failed to fetch users:', error);
@@ -81,6 +88,25 @@ class UserService {
       return { message: 'Pengguna berhasil dinonaktifkan.' };
     } catch (error) {
       console.error('Error deleting user:', error);
+      throw error;
+    }
+  }
+
+  async login(email, password) {
+    try {
+      const user = await User.findOne({ where: { email, active: true } });
+      if (!user) {
+        throw new Error('Pengguna tidak ditemukan atau tidak aktif.');
+      }
+
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      if (!isPasswordValid) {
+        throw new Error('Password salah.');
+      }
+
+      return user;
+    } catch (error) {
+      console.error('Error during login:', error);
       throw error;
     }
   }
