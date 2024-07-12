@@ -4,7 +4,7 @@ const xlsx = require('xlsx');
 const moment = require('moment-timezone');
 const axios = require('axios');
 
-class UploadExcelService {
+class UploadExcelServiceTiktok {
     async processFile(file, marketplaceId) {
         return new Promise((resolve, reject) => {
             if (file.originalname.endsWith('.csv')) {
@@ -20,7 +20,7 @@ class UploadExcelService {
                             // Transform data to desired JSON format
                             const transformedResults = await this.transformAllOrders(results, marketplaceId);
 
-                            // Kirim data ke API
+                            // Send data to API
                             const apiResults = await this.sendDataToApi(transformedResults);
 
                             resolve(apiResults);
@@ -38,20 +38,22 @@ class UploadExcelService {
                 const worksheet = workbook.Sheets[sheetName];
                 const data = xlsx.utils.sheet_to_json(worksheet);
 
-                try {
-                    // Transform data to desired JSON format
-                    const transformedData =  this.transformAllOrders(data, marketplaceId);
+                (async () => {
+                    try {
+                        // Transform data to desired JSON format
+                        const transformedData = await this.transformAllOrders(data, marketplaceId);
 
-                    // Kirim data ke API
-                    const apiResults =  this.sendDataToApi(transformedData);
+                        // Send data to API
+                        const apiResults = await this.sendDataToApi(transformedData);
 
-                    // Hapus file setelah diproses
-                    fs.unlinkSync(file.path);
-                    resolve(apiResults);
-                } catch (error) {
-                    fs.unlinkSync(file.path);
-                    reject(error);
-                }
+                        // Hapus file setelah diproses
+                        fs.unlinkSync(file.path);
+                        resolve(apiResults);
+                    } catch (error) {
+                        fs.unlinkSync(file.path);
+                        reject(error);
+                    }
+                })();
             } else {
                 fs.unlinkSync(file.path);
                 reject(new Error("Unsupported file format."));
@@ -90,33 +92,41 @@ class UploadExcelService {
             business_id: "1",
             marketplace_id: marketplaceId,
             order_id: orderId,
-            order_number: order["No. Pesanan"],
+            order_number: order["Order ID"],
             customer: {
-                name: order["Nama Penerima"],
-                phone_number: order["No. Telepon"],
+                name: order["Recipient"],
+                phone_number: order["Phone #"],
                 active: true
             },
             detail: {
-                name: order["Nama Produk"],
-                jumlah: order["Jumlah"],
+                name: order["Product Name"],
+                jumlah: order["Quantity"],
                 active: true
             },
+            details: [ // Make sure this is an array
+                {
+                    sku: order["SKU ID"] || order["Variation"], // Use SKU if available, otherwise use variation
+                    name: `${order["Product Name"]} ${order["Variation"]}`, // Combine product name and variation
+                    jumlah: order["Quantity"],
+                    active: true
+                }
+            ],
             address: {
-                address: order["Alamat Pengiriman"],
-                sub_district: "", // You need to extract or provide this information
-                district: order["Kota/Kabupaten"],
-                province: order["Provinsi"],
+                address: order["Detail Address"],
+                sub_district: order["Villages"], // Assuming 'Villages' corresponds to sub-district
+                district: order["Districts"],
+                province: order["Province"],
                 active: true
             },
-            courier: order["Opsi Pengiriman"],
-            status: order["Status Pesanan"],
-            payment_method: order["Metode Pembayaran"],
-            tracking_number: order["No. Resi"],
-            notes: order["Catatan dari Pembeli"] || "",
-            order_date: new Date(order["Waktu Pesanan Dibuat"]).toISOString(),
-            shipping_cost: extractNumericValue(order["Estimasi Potongan Biaya Pengiriman"]),
-            product_price: extractNumericValue(order["Harga Setelah Diskon"]),
-            gross_amount: extractNumericValue(order["Total Pembayaran"])
+            courier: order["Shipping Provider Name"],
+            status: order["Order Status"],
+            payment_method: order["Payment Method"],
+            tracking_number: order["Tracking ID"],
+            notes: order["Buyer Message"] || "",
+            order_date: moment(order["Created Time"], 'DD/MM/YYYY HH:mm:ss').toISOString(),
+            shipping_cost: extractNumericValue(order["Original Shipping Fee"]),
+            product_price: extractNumericValue(order["SKU Subtotal After Discount"]),
+            gross_amount: extractNumericValue(order["Order Amount"])
         };
     }
 
@@ -132,14 +142,14 @@ class UploadExcelService {
             try {
                 await axios.post(apiUrl, item);
                 results.success += 1;
-                console.log(`Order ${item.order_id} sent successfully`);
+                console.log(`Order ${item.order_number} sent successfully`);
             } catch (error) {
                 results.failed += 1;
                 results.errors.push({
-                    order_id: item.order_id,
+                    order_number: item.order_number,
                     error: error.message
                 });
-                console.error(`Failed to send order ${item.order_id}: ${error.message}`);
+                console.error(`Failed to send order ${item.order_number}: ${error.message}`);
             }
         }
 
@@ -147,4 +157,4 @@ class UploadExcelService {
     }
 }
 
-module.exports = UploadExcelService;
+module.exports = UploadExcelServiceTiktok;

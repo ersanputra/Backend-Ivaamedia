@@ -14,6 +14,7 @@ orderRouter.put('/:order_id', orderController.updateOrder.bind(orderController))
 orderRouter.delete('/:id', orderController.deleteOrder.bind(orderController));
 
 // Tambahkan rute unggahan
-orderRouter.post('/upload', uploadExcelController.getUploadMiddleware(), uploadExcelController.uploadFile.bind(uploadExcelController));
+orderRouter.post('/upload/shopee', uploadExcelController.getUploadMiddleware(), uploadExcelController.uploadFileShopee.bind(uploadExcelController));
+orderRouter.post('/upload/tiktok', uploadExcelController.getUploadMiddleware(), uploadExcelController.uploadFileTiktok.bind(uploadExcelController));
 
 module.exports = orderRouter;

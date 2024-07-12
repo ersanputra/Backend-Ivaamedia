@@ -7,8 +7,8 @@ module.exports = (sequelize, DataTypes) => {
       Order.belongsTo(models.Business, { foreignKey: 'business_id', as: 'business' });
       Order.belongsTo(models.Marketplace, { foreignKey: 'marketplace_id', as: 'marketplace' });
       Order.belongsTo(models.Customer, { foreignKey: 'customer_id', as: 'customer' });
-      Order.belongsTo(models.Detail, { foreignKey: 'details_id', as: 'detail' });
       Order.belongsTo(models.Address, { foreignKey: 'address_id', as: 'address' });
+      Order.hasMany(models.Detail, { foreignKey: 'order_id', as: 'details' }); // Update this line
     }
   }
   Order.init({
@@ -18,7 +18,6 @@ module.exports = (sequelize, DataTypes) => {
     order_id: DataTypes.STRING,
     order_number: DataTypes.STRING,
     customer_id: DataTypes.INTEGER,
-    details_id: DataTypes.INTEGER,
     address_id: DataTypes.INTEGER,
     status: DataTypes.STRING,
     courier: DataTypes.STRING,
