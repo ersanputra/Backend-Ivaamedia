@@ -7,6 +7,18 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'business_id',
         as: 'business',
       });
+      User.hasMany(models.Inventory, {
+        foreignKey: 'user_id',
+        as: 'inventories',
+      });
+      User.hasMany(models.Location, {
+        foreignKey: 'user_id',
+        as: 'locations',
+      });
+      User.hasMany(models.ProductCategory, {
+        foreignKey: 'user_id',
+        as: 'productcategory',
+      });
     }
   }
   User.init({
