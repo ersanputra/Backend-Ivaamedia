@@ -29,7 +29,11 @@ module.exports = (sequelize, DataTypes) => {
     selling_price: DataTypes.DECIMAL,
     inventory_value: DataTypes.DECIMAL,
     user_id: DataTypes.INTEGER,
-    active: DataTypes.BOOLEAN
+    active: DataTypes.BOOLEAN,
+    satuan: {
+      type: DataTypes.STRING,
+      allowNull: false
+    }
   }, {
     sequelize,
     modelName: 'Inventory',

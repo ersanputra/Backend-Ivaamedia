@@ -7,5 +7,9 @@ inventoryRouter.get('/', InventoryController.getAllInventories);
 inventoryRouter.get('/:id', InventoryController.getInventoryById);
 inventoryRouter.put('/:id', InventoryController.updateInventory);
 inventoryRouter.delete('/:id', InventoryController.deleteInventory);
+inventoryRouter.get('/user/:userId', InventoryController.getInventoriesByUserId);
+
+
+
 
 module.exports = inventoryRouter;

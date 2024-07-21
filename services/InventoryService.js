@@ -4,42 +4,49 @@ class InventoryService {
   async createInventory(inventoryData) {
     const t = await sequelize.transaction();
     try {
-      const existingInventory = await Inventory.findOne({
-        where: {
-          sku: inventoryData.sku,
-          active: true
-        },
-        transaction: t
-      });
+        const existingInventory = await Inventory.findOne({
+            where: {
+                sku: inventoryData.sku,
+                active: true
+            },
+            transaction: t
+        });
 
-      if (existingInventory) {
-        await t.rollback();
-        throw new Error('SKU already exists for this inventory.');
-      } else {
-        const inventory = await Inventory.create({
-          product_category_id: inventoryData.product_category_id,
-          sku: inventoryData.sku,
-          name: inventoryData.name,
-          hpp: inventoryData.hpp,
-          product_photo: inventoryData.product_photo,
-          quantity: inventoryData.quantity,
-          description: inventoryData.description,
-          location_id: inventoryData.location_id,
-          selling_price: inventoryData.selling_price,
-          inventory_value: inventoryData.inventory_value,
-          active: inventoryData.active || true,
-          user_id: inventoryData.user_id
-        }, { transaction: t });
+        if (existingInventory) {
+            await t.rollback();
+            throw new Error('SKU already exists. Please use a different SKU.');
+        } else {
+            // Convert empty string selling_price to null
+            const sellingPrice = inventoryData.selling_price === "" ? null : inventoryData.selling_price;
 
-        await t.commit();
-        return inventory;
-      }
+            const inventory = await Inventory.create({
+                product_category_id: inventoryData.product_category_id,
+                sku: inventoryData.sku,
+                name: inventoryData.name,
+                hpp: inventoryData.hpp,
+                product_photo: inventoryData.product_photo,
+                quantity: inventoryData.quantity,
+                description: inventoryData.description,
+                location_id: inventoryData.location_id,
+                selling_price: sellingPrice,
+                inventory_value: inventoryData.inventory_value,
+                active: inventoryData.active || true,
+                user_id: inventoryData.user_id,
+                satuan: inventoryData.satuan  // Added this
+            }, { transaction: t });
+
+            await t.commit();
+            return inventory;
+        }
     } catch (error) {
-      await t.rollback();
-      console.error('Failed to create inventory:', error);
-      throw error;
+        if (!t.finished) { // Ensure the transaction hasn't finished
+            await t.rollback();
+        }
+        console.error('Failed to create inventory:', error);
+        throw error;
     }
-  }
+}
+
 
   async getAllInventories() {
     try {
@@ -74,6 +81,26 @@ class InventoryService {
       return inventory;
     } catch (error) {
       console.error('Failed to fetch inventory:', error);
+      throw error;
+    }
+  }
+
+  async getInventoriesByUserId(userId) {
+    try {
+      const locations = await Inventory.findAll({
+        where: { active: true },
+        include: [
+          { model: ProductCategory, as: 'productCategory' },
+          { model: Location, as: 'location' },
+          { model: User, as: 'user' }
+        ]
+      });
+      if (!locations.length) {
+        throw new Error('Locations tidak ditemukan');
+      }
+      return locations;
+    } catch (error) {
+      console.error('Failed to fetch locations by user id:', error);
       throw error;
     }
   }

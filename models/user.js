@@ -1,5 +1,6 @@
 'use strict';
 const { Model } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate(models) {
@@ -15,12 +16,25 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'user_id',
         as: 'locations',
       });
-      User.hasMany(models.ProductCategory, {
+      User.hasMany(models.UploadImage, {
         foreignKey: 'user_id',
-        as: 'productcategory',
+        as: 'upload_images',
+      });
+      User.hasMany(models.KategoriPayment, {
+        foreignKey: 'user_id',
+        as: 'kategoripayment',
+      });
+      User.hasMany(models.Bank, {
+        foreignKey: 'user_id',
+        as: 'bank',
+      });
+      User.hasMany(models.Transaksi, {
+        foreignKey: 'user_id',
+        as: 'transaksis',
       });
     }
   }
+
   User.init({
     email: DataTypes.STRING,
     password: DataTypes.STRING,
@@ -34,5 +48,6 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'User',
   });
+  
   return User;
 };

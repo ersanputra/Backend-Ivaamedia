@@ -7,7 +7,11 @@ class InventoryController {
       const inventory = await inventoryService.createInventory(req.body);
       res.status(201).json(inventory);
     } catch (error) {
-      res.status(400).json({ error: error.message });
+      if (error.message === 'SKU already exists. Please use a different SKU.') {
+        res.status(400).json({ error: 'SKU already exists. Please use a different SKU.' });
+      } else {
+        res.status(400).json({ error: error.message });
+      }
     }
   }
 
@@ -24,6 +28,15 @@ class InventoryController {
     try {
       const inventory = await inventoryService.getInventoryById(req.params.id);
       res.status(200).json(inventory);
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  }
+
+  static async getInventoriesByUserId(req, res) {
+    try {
+      const inventories = await inventoryService.getInventoriesByUserId(req.params.userId);
+      res.status(200).json(inventories);
     } catch (error) {
       res.status(400).json({ error: error.message });
     }
