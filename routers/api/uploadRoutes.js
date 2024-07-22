@@ -6,4 +6,6 @@ uploadRouter.post('/inventory', (req, res) => UploadController.uploadFile(req, r
 
 uploadRouter.post('/payments', (req, res) => UploadController.uploadFilePayments(req, res));
 
+uploadRouter.post('/profile', (req, res) => UploadController.uploadFileProfile(req, res));
+
 module.exports = uploadRouter;
