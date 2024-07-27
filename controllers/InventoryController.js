@@ -4,7 +4,7 @@ const inventoryService = new InventoryService();
 class InventoryController {
   static async createInventory(req, res) {
     try {
-      const inventory = await inventoryService.createInventory(req.body);
+      const inventory = await inventoryService.createInventory(req.user.id, req.body);
       res.status(201).json(inventory);
     } catch (error) {
       if (error.message === 'SKU already exists. Please use a different SKU.') {
@@ -17,7 +17,7 @@ class InventoryController {
 
   static async getAllInventories(req, res) {
     try {
-      const inventories = await inventoryService.getAllInventories();
+      const inventories = await inventoryService.getAllInventories(req.user.id);
       res.status(200).json(inventories);
     } catch (error) {
       res.status(400).json({ error: error.message });
@@ -26,7 +26,7 @@ class InventoryController {
 
   static async getInventoryById(req, res) {
     try {
-      const inventory = await inventoryService.getInventoryById(req.params.id);
+      const inventory = await inventoryService.getInventoryById(req.user.id, req.params.id);
       res.status(200).json(inventory);
     } catch (error) {
       res.status(400).json({ error: error.message });
@@ -35,6 +35,9 @@ class InventoryController {
 
   static async getInventoriesByUserId(req, res) {
     try {
+      if (req.user.id !== parseInt(req.params.userId, 10)) {
+        return res.status(403).json({ message: 'Forbidden' });
+      }
       const inventories = await inventoryService.getInventoriesByUserId(req.params.userId);
       res.status(200).json(inventories);
     } catch (error) {
@@ -44,7 +47,7 @@ class InventoryController {
 
   static async updateInventory(req, res) {
     try {
-      const inventory = await inventoryService.updateInventory(req.params.id, req.body);
+      const inventory = await inventoryService.updateInventory(req.user.id, req.params.id, req.body);
       res.status(200).json(inventory);
     } catch (error) {
       res.status(400).json({ error: error.message });
@@ -53,7 +56,7 @@ class InventoryController {
 
   static async deleteInventory(req, res) {
     try {
-      await inventoryService.deleteInventory(req.params.id);
+      await inventoryService.deleteInventory(req.user.id, req.params.id);
       res.status(200).json({ message: 'Inventory berhasil dihapus.' });
     } catch (error) {
       res.status(400).json({ error: error.message });

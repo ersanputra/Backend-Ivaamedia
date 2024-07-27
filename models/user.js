@@ -4,9 +4,15 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate(models) {
+      // Define associations here
       User.belongsTo(models.Business, {
         foreignKey: 'business_id',
         as: 'business',
+      });
+      User.belongsToMany(models.Business, {
+        through: 'UserBusiness',
+        foreignKey: 'user_id',
+        as: 'businesses',
       });
       User.hasMany(models.Inventory, {
         foreignKey: 'user_id',
@@ -36,18 +42,63 @@ module.exports = (sequelize, DataTypes) => {
   }
 
   User.init({
-    email: DataTypes.STRING,
-    password: DataTypes.STRING,
-    full_name: DataTypes.STRING,
-    phone_number: DataTypes.STRING,
-    role: DataTypes.STRING,
-    profile_image: DataTypes.STRING,
-    business_id: DataTypes.INTEGER,
-    active: DataTypes.BOOLEAN
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+      validate: {
+        isEmail: true
+      }
+    },
+    password: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        len: [8, 100] // Minimum 8 characters
+      }
+    },
+    full_name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        notEmpty: true
+      }
+    },
+    phone_number: {
+      type: DataTypes.STRING,
+      validate: {
+        isNumeric: true,
+        len: [10, 15] // Adjust as necessary for your requirements
+      }
+    },
+    role: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        isIn: [['ADMIN', 'USER', 'manager']] // Example roles
+      }
+    },
+    profile_image: {
+      type: DataTypes.STRING,
+      validate: {
+        isUrl: true // Ensure it is a valid URL
+      }
+    },
+    business_id: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'Business',
+        key: 'id'
+      }
+    },
+    active: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true
+    }
   }, {
     sequelize,
     modelName: 'User',
   });
-  
+
   return User;
 };

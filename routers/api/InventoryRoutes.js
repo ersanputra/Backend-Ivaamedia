@@ -1,15 +1,14 @@
 const express = require("express");
 const inventoryRouter = express.Router();
 const InventoryController = require('../../controllers/InventoryController');
+const checkToken = require('../../middlewares/checkToken');
 
-inventoryRouter.post('/', InventoryController.createInventory);
-inventoryRouter.get('/', InventoryController.getAllInventories);
-inventoryRouter.get('/:id', InventoryController.getInventoryById);
-inventoryRouter.put('/:id', InventoryController.updateInventory);
-inventoryRouter.delete('/:id', InventoryController.deleteInventory);
-inventoryRouter.get('/user/:userId', InventoryController.getInventoriesByUserId);
-
-
-
+// Apply checkToken middleware to all routes
+inventoryRouter.post('/', checkToken, InventoryController.createInventory);
+inventoryRouter.get('/', checkToken, InventoryController.getAllInventories);
+inventoryRouter.get('/:id', checkToken, InventoryController.getInventoryById);
+inventoryRouter.put('/:id', checkToken, InventoryController.updateInventory);
+inventoryRouter.delete('/:id', checkToken, InventoryController.deleteInventory);
+inventoryRouter.get('/user/:userId', checkToken, InventoryController.getInventoriesByUserId);
 
 module.exports = inventoryRouter;

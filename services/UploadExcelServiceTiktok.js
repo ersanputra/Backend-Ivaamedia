@@ -145,11 +145,12 @@ class UploadExcelServiceTiktok {
                 console.log(`Order ${item.order_number} sent successfully`);
             } catch (error) {
                 results.failed += 1;
+                const errorMessage = error.response ? error.response.data : error.message;
                 results.errors.push({
                     order_number: item.order_number,
-                    error: error.message
+                    error: errorMessage
                 });
-                console.error(`Failed to send order ${item.order_number}: ${error.message}`);
+                console.error(`Failed to send order ${item.order_number}: ${errorMessage}`);
             }
         }
 

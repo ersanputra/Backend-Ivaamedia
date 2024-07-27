@@ -1,12 +1,24 @@
 const express = require('express');
 const locationRouter = express.Router();
 const LocationController = require('../../controllers/LocationController');
+const checkToken = require('../../middlewares/checkToken');
 
-locationRouter.post('/', LocationController.createLocation);
-locationRouter.get('/', LocationController.getAllLocations);
-locationRouter.get('/:id', LocationController.getLocationById);
-locationRouter.get('/user/:userId', LocationController.getLocationByUserId); // New route
-locationRouter.put('/:id', LocationController.updateLocation);
-locationRouter.delete('/:id', LocationController.deleteLocation);
+// Create a new Location
+locationRouter.post('/', checkToken, LocationController.createLocation);
+
+// Get all Locations
+locationRouter.get('/', checkToken, LocationController.getAllLocations);
+
+// Get a single Location by ID
+locationRouter.get('/:id', checkToken, LocationController.getLocationById);
+
+// Get all Locations for a specific user
+locationRouter.get('/user/:userId', checkToken, LocationController.getLocationByUserId);
+
+// Update a Location
+locationRouter.put('/:id', checkToken, LocationController.updateLocation);
+
+// Delete a Location
+locationRouter.delete('/:id', checkToken, LocationController.deleteLocation);
 
 module.exports = locationRouter;

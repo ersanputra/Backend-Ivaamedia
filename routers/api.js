@@ -8,6 +8,7 @@ const uploadRouter = require("./api/uploadRoutes");
 const kategoriPaymentRouter = require("./api/kategoriPaymentRoutes");
 const bankRouter = require("./api/bankRoutes");
 const transaksiRouter = require("./api/transaksiRoutes");
+const userBusinessRouter = require("./api/UserBusinessRoutes");
 const api = express.Router();
 
 
@@ -20,6 +21,7 @@ api.use("/upload", uploadRouter)
 api.use("/kategori-payments", kategoriPaymentRouter)
 api.use("/banks", bankRouter)
 api.use("/transaksi", transaksiRouter)
+api.use("/user-business", userBusinessRouter)
 
 
 module.exports = api;

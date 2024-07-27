@@ -1,23 +1,24 @@
 const express = require('express');
 const bankRouter = express.Router();
 const BankController = require('../../controllers/BankController');
+const checkToken = require('../../middlewares/checkToken');
 
 // Create a new Bank
-bankRouter.post('/', BankController.createBank);
+bankRouter.post('/', checkToken, BankController.createBank);
 
 // Get all Banks
-bankRouter.get('/', BankController.getAllBanks);
+bankRouter.get('/', checkToken, BankController.getAllBanks);
 
 // Get a single Bank by ID
-bankRouter.get('/:id', BankController.getBankById);
+bankRouter.get('/:id', checkToken, BankController.getBankById);
 
 // Get all Banks for a specific user
-bankRouter.get('/user/:userId', BankController.getBanksByUserId);
+bankRouter.get('/user/:userId', checkToken, BankController.getBanksByUserId);
 
 // Update a Bank
-bankRouter.put('/:id', BankController.updateBank);
+bankRouter.put('/:id', checkToken, BankController.updateBank);
 
 // Delete a Bank
-bankRouter.delete('/:id', BankController.deleteBank);
+bankRouter.delete('/:id', checkToken, BankController.deleteBank);
 
 module.exports = bankRouter;
