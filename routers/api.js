@@ -9,6 +9,8 @@ const kategoriPaymentRouter = require("./api/kategoriPaymentRoutes");
 const bankRouter = require("./api/bankRoutes");
 const transaksiRouter = require("./api/transaksiRoutes");
 const userBusinessRouter = require("./api/UserBusinessRoutes");
+const sellerRouter = require("./api/sellerRoutes");
+const pembelianRouter = require("./api/pembelianRoutes");
 const api = express.Router();
 
 
@@ -22,6 +24,7 @@ api.use("/kategori-payments", kategoriPaymentRouter)
 api.use("/banks", bankRouter)
 api.use("/transaksi", transaksiRouter)
 api.use("/user-business", userBusinessRouter)
-
+api.use("/sellers", sellerRouter)
+api.use("/pembelian", pembelianRouter)
 
 module.exports = api;
