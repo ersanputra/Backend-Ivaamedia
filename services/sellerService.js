@@ -1,4 +1,4 @@
-const { sequelize, Seller, User } = require('../models');
+const { sequelize, Seller, User, UserBusiness  } = require('../models');
 
 class SellerService {
   async createSeller(userId, sellerData) {
@@ -50,16 +50,37 @@ class SellerService {
 
   async getSellersByUserId(userId) {
     try {
-      const sellers = await Seller.findAll({
-        where: { user_id: userId, active: true },
-        include: [{ model: User, as: 'user' }]
-      });
-      return sellers;
+        // Check if the user exists in UserBusiness
+        const userBusiness = await UserBusiness.findOne({
+            where: { user_id: userId }
+        });
+
+        if (!userBusiness) {
+            throw new Error('User not found in UserBusiness');
+        }
+
+        const businessId = userBusiness.business_id;
+
+        // Fetch all user_ids that belong to the same business_id
+        const userBusinesses = await UserBusiness.findAll({
+            where: { business_id: businessId },
+            attributes: ['user_id']
+        });
+
+        const userIds = userBusinesses.map(ub => ub.user_id);
+
+        const sellers = await Seller.findAll({
+            where: { user_id: userIds, active: true },
+            include: [{ model: User, as: 'user' }]
+        });
+        
+        return sellers;
     } catch (error) {
-      console.error('Failed to fetch sellers by user ID:', error);
-      throw error;
+        console.error('Failed to fetch sellers by user ID:', error);
+        throw error;
     }
-  }
+}
+
 
   async updateSeller(userId, id, updateData) {
     const t = await sequelize.transaction();

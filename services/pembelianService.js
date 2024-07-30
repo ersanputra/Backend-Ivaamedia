@@ -4,8 +4,8 @@ class PembelianService {
   async createPembelian(userId, pembelianData) {
     const t = await sequelize.transaction();
     try {
-        let productCategoryId = null;
-
+      let productCategoryId = null;
+  
       if (pembelianData.details && pembelianData.details.length > 0) {
         // Ambil inventori_id dari detail pertama
         const firstDetail = pembelianData.details[0];
@@ -36,7 +36,7 @@ class PembelianService {
         catatan: pembelianData.catatan,
         active: pembelianData.active || true
       }, { transaction: t });
-
+  
       // Insert PembelianDetails if any
       if (pembelianData.details && pembelianData.details.length > 0) {
         for (const detail of pembelianData.details) {
@@ -48,17 +48,18 @@ class PembelianService {
           if (!inventory) {
             throw new Error(`Inventory with id ${detail.inventori_id} not found`);
           }
-
+  
           await PembelianDetail.create({
             pembelian_id: pembelian.id,
             inventori_id: detail.inventori_id,
             harga: detail.harga,
             satuan: detail.satuan,
-            nama: inventory.name // Use the name from Inventory
+            nama: inventory.name, // Use the name from Inventory
+            jumlah: detail.jumlah // Include jumlah from detail
           }, { transaction: t });
         }
       }
-
+  
       await t.commit();
       return pembelian;
     } catch (error) {
@@ -67,6 +68,7 @@ class PembelianService {
       throw error;
     }
   }
+  
 
   async getAllPembelians(userId) {
     try {

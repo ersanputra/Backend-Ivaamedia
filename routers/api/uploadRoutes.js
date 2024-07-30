@@ -8,4 +8,6 @@ uploadRouter.post('/payments', (req, res) => UploadController.uploadFilePayments
 
 uploadRouter.post('/profile', (req, res) => UploadController.uploadFileProfile(req, res));
 
+uploadRouter.post('/pembelian', (req, res) => UploadController.uploadFilePembelian(req, res));
+
 module.exports = uploadRouter;

@@ -19,6 +19,11 @@ module.exports = (sequelize, DataTypes) => {
     harga: DataTypes.DECIMAL,
     satuan: DataTypes.STRING,
     nama: DataTypes.TEXT,
+    jumlah: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 1
+    }
   }, {
     sequelize,
     modelName: 'PembelianDetail',
